@@ -1,0 +1,7 @@
+sensor_id,timestamp,reading_type,value,battery_level
+sensor_4,2025-06-05 11:33:48.068905,temperature,22.25,44.47
+sensor_4,2025-06-05 12:33:48.068905,humidity,14.69,77.96
+sensor_4,2025-06-05 11:53:48.068905,temperature,27.54,73.98
+sensor_4,2025-06-05 12:23:48.068905,temperature,17.36,82.7
+sensor_5,2025-06-05 13:08:48.068905,temperature,11.24,54.02
+sensor_5,2025-06-05 13:03:48.068905,temperature,13.34,83.95

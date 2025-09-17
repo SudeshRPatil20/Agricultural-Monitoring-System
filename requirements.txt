@@ -1,5 +1,10 @@
-pandas
-seaborn
 numpy
+seaborn
+pandas
+scikit-learn
 dill
+Flask
+duckdb
+pyarrow
+fastparquet
 -e.
