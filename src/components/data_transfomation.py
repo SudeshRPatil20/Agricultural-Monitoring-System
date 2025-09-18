@@ -16,6 +16,7 @@ from src.utils import save_object
 class TransformationConfig:
     preprocessor_path: str = "artifacts/preprocessor.pkl"
     calibration_params: dict = None
+    input_timezone: str = "UTC"  # assume raw timestamps are in UTC
 
 
 # ================================
@@ -85,7 +86,9 @@ class DataTransformation:
         df["date"] = df["timestamp"].dt.date
 
         # Daily average per sensor & type
-        df["daily_avg"] = df.groupby(["sensor_id", "reading_type", "date"])["calibrated_value"].transform("mean")
+        df["daily_avg"] = df.groupby(
+            ["sensor_id", "reading_type", "date"]
+        )["calibrated_value"].transform("mean")
 
         # 7-record rolling average
         df.sort_values(["sensor_id", "reading_type", "timestamp"], inplace=True)
@@ -117,12 +120,12 @@ class DataTransformation:
         ts = pd.to_datetime(df["timestamp"], errors="coerce")
 
         try:
-            ts = ts.dt.tz_localize("UTC").dt.tz_convert("Asia/Kolkata")
+            ts = ts.dt.tz_localize(self.cfg.input_timezone).dt.tz_convert("Asia/Kolkata")
         except TypeError:
             ts = ts.dt.tz_convert("Asia/Kolkata")
 
-        df["timestamp_iso"] = ts.dt.strftime("%Y-%m-%dT%H:%M:%S%z")
         df["timestamp"] = ts
+        df["timestamp_iso"] = ts.dt.strftime("%Y-%m-%dT%H:%M:%S%z")
         return df
 
     # --------------------------------
@@ -135,7 +138,10 @@ class DataTransformation:
         df = df.copy()
         scaler = StandardScaler()
         df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].median())
-        df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
+
+        scaled = scaler.fit_transform(df[numeric_cols])
+        scaled_cols = [col + "_scaled" for col in numeric_cols]
+        df[scaled_cols] = scaled
 
         # Save preprocessor
         save_object(self.cfg.preprocessor_path, scaler)
